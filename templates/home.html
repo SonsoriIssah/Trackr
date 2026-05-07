@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trackr</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0e0f;
+      --surface: #1a1a1c;
+      --border: #2a2a2e;
+      --text: #f0ede8;
+      --muted: #6b6870;
+      --accent: #c8f060;
+      --accent-dim: rgba(200,240,96,0.12);
+      --red: #ff5c5c;
+      --amber: #ffb84d;
+      --low: #4d9fff;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 48px 24px 80px;
+    }
+
+    .page { max-width: 700px; margin: 0 auto; }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 48px;
+      letter-spacing: -2px;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .logo span { color: var(--accent); }
+
+    .header-meta {
+      text-align: right;
+    }
+
+    .task-count {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .new-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 10px 18px;
+      text-decoration: none;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .new-btn:hover { opacity: 0.85; }
+    .new-btn:active { transform: scale(0.97); }
+
+    .new-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2.5; stroke-linecap: round;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 32px;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tag {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      background: none;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .filter-tag.active, .filter-tag:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Task list */
+    .tasks { display: flex; flex-direction: column; gap: 2px; }
+
+    .task-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: var(--surface);
+      border-left: 3px solid transparent;
+      transition: border-color 0.15s, background 0.15s;
+      animation: slideIn 0.25s ease both;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .task-row:hover { background: #202022; }
+    .task-row.high { border-left-color: var(--red); }
+    .task-row.medium { border-left-color: var(--amber); }
+    .task-row.low { border-left-color: var(--low); }
+
+    .task-info { min-width: 0; }
+
+    .task-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .category-tag {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .priority-badge {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      font-weight: 500;
+    }
+
+    .priority-badge.high { background: rgba(255,92,92,0.15); color: var(--red); }
+    .priority-badge.medium { background: rgba(255,184,77,0.15); color: var(--amber); }
+    .priority-badge.low { background: rgba(77,159,255,0.15); color: var(--low); }
+
+    .status-badge {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .status-badge.done {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .task-actions { display: flex; align-items: center; gap: 6px; }
+
+    .edit-link {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .edit-link:hover { color: var(--text); border-color: var(--muted); }
+
+    .del-form { margin: 0; }
+
+    .del-btn {
+      background: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      padding: 5px 8px;
+      color: var(--muted);
+      transition: all 0.15s;
+      display: flex; align-items: center;
+    }
+
+    .del-btn:hover { color: var(--red); border-color: var(--red); }
+
+    .del-btn svg {
+      width: 12px; height: 12px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* Empty state */
+    .empty {
+      padding: 64px 0;
+      text-align: center;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+
+    .empty p {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .empty span {
+      font-size: 11px;
+      color: var(--border);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">Trac<span>kr</span></div>
+      <div class="header-meta">
+        <div class="task-count">{{ todos|length }} task{% if todos|length != 1 %}s{% endif %}</div>
+        <a href="/create" class="new-btn">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New task
+        </a>
+      </div>
+    </header>
+
+    <div class="divider"></div>
+
+    {% if todos %}
+      <ul class="tasks" style="list-style:none">
+        {% for todo in todos %}
+        <li class="task-row {{ todo.priority | lower }}" style="animation-delay:{{ loop.index0 * 0.04 }}s">
+          <div class="task-info">
+            <div class="task-name">{{ todo.task_name }}</div>
+            <div class="task-meta">
+              <span class="category-tag">{{ todo.category }}</span>
+              <span class="priority-badge {{ todo.priority | lower }}">{{ todo.priority }}</span>
+            </div>
+          </div>
+          <span class="status-badge {% if todo.status == 'Completed' %}done{% endif %}">
+            {{ todo.status }}
+          </span>
+          <a href="/edit/{{ todo.id }}" class="edit-link">Edit</a>
+          <form class="del-form" action="/delete/{{ todo.id }}" method="POST">
+            <button class="del-btn" type="submit" title="Delete">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty">
+        <div class="empty-icon">◻</div>
+        <p>No tasks yet.</p>
+        <span>Click "New task" to get started</span>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>

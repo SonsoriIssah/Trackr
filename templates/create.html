@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Task — Trackr</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0e0f;
+      --surface: #1a1a1c;
+      --border: #2a2a2e;
+      --text: #f0ede8;
+      --muted: #6b6870;
+      --accent: #c8f060;
+      --accent-dim: rgba(200,240,96,0.12);
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 48px 24px 80px;
+    }
+
+    .page { max-width: 560px; margin: 0 auto; }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 48px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-link {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s;
+    }
+
+    .back-link:hover { color: var(--text); }
+
+    .back-link svg {
+      width: 12px; height: 12px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .page-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .field { margin-bottom: 32px; }
+
+    .field-label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .field input[type="text"] {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom: 2px solid var(--accent);
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 22px;
+      color: var(--text);
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .field input[type="text"]::placeholder { color: var(--muted); font-weight: 400; }
+    .field input[type="text"]:focus { border-bottom-color: var(--accent); background: #1e1e20; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .field-row .field { margin-bottom: 0; }
+
+    select {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text);
+      padding: 12px 14px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6870' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      transition: border-color 0.15s;
+    }
+
+    select:focus { border-color: var(--accent); }
+    select option { background: var(--surface); }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-top: 8px;
+    }
+
+    .save-btn {
+      background: var(--accent);
+      color: var(--bg);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 14px 32px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .save-btn:hover { opacity: 0.85; }
+    .save-btn:active { transform: scale(0.97); }
+
+    .cancel-link {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .cancel-link:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top-bar">
+      <a href="/" class="back-link">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        All tasks
+      </a>
+      <span class="page-label">New task</span>
+    </div>
+
+    <form action="/create" method="POST">
+      <div class="field">
+        <label class="field-label" for="task_name">Task name</label>
+        <input type="text" id="task_name" name="task_name" placeholder="What needs to be done?" required autofocus>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label" for="category">Category</label>
+          <select id="category" name="category" required>
+            <option value="" disabled selected>Select...</option>
+            <option value="School">School</option>
+            <option value="Personal">Personal</option>
+            <option value="Work">Work</option>
+            <option value="Project">Project</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="priority">Priority</label>
+          <select id="priority" name="priority" required>
+            <option value="" disabled selected>Select...</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="save-btn">Add task</button>
+        <a href="/" class="cancel-link">Cancel</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
