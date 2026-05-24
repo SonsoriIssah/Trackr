@@ -244,7 +244,7 @@ def create_all():
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(check_reminders, 'interval', minutes=1, args=[db, Todo, app])
+scheduler.start()
 
 if __name__ == '__main__':
-    scheduler.start()
     app.run(debug=True)

@@ -1,19 +1,22 @@
 from datetime import datetime
 import os
-from dotenv import load_dotenv
-load_dotenv()
-sender = os.environ.get('EMAIL_ADDRESS')
-password = os.environ.get('EMAIL_PASSWORD')
-
 import smtplib
 from email.mime.text import MIMEText
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 def send_email(to_email, task_name, deadline):
+    sender = os.environ.get('EMAIL_ADDRESS')
+    password = os.environ.get('EMAIL_PASSWORD')
+    if not sender or not password:
+        print(f"[reminders] EMAIL_ADDRESS or EMAIL_PASSWORD not set — skipping email to {to_email}")
+        return
     msg = MIMEText(f"Reminder: Your task '{task_name}' is due on {deadline}")
     msg['Subject'] = 'Trackr Reminder'
     msg['From'] = sender
     msg['To'] = to_email
-    
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
         server.login(sender, password)
         server.sendmail(sender, to_email, msg.as_string())
