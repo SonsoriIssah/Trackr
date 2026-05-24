@@ -4,270 +4,484 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trackr</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0e0e0f;
-      --surface: #1a1a1c;
-      --border: #2a2a2e;
-      --text: #f0ede8;
-      --muted: #6b6870;
-      --accent: #c8f060;
-      --accent-dim: rgba(200,240,96,0.12);
-      --red: #ff5c5c;
-      --amber: #ffb84d;
-      --low: #4d9fff;
+      --bg:           #0e0c08;
+      --bg-warm:      #121008;
+      --card:         #1a1609;
+      --card-hover:   #201c0e;
+      --border:       #2a2415;
+      --border-mid:   #362e1c;
+      --border-strong:#473e28;
+
+      --text:   #f0e8d5;
+      --text-2: #b8a98a;
+      --text-3: #7d7060;
+      --text-4: #4a4232;
+
+      --terra:      #df7a50;
+      --terra-lt:   #e8977a;
+      --terra-dim:  rgba(223,122,80,.13);
+      --terra-glow: rgba(223,122,80,.22);
+
+      --sage:     #78c4a0;
+      --sage-dim: rgba(120,196,160,.12);
+
+      --gold:     #c9a048;
+      --gold-dim: rgba(201,160,72,.12);
+
+      --rose:     #cc6b6b;
+      --rose-dim: rgba(204,107,107,.12);
+
+      --sky:      #6aa2c8;
+      --sky-dim:  rgba(106,162,200,.12);
     }
 
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 48px 24px 80px;
+      padding: 52px 24px 96px;
+      background-image:
+        radial-gradient(ellipse 700px 500px at -8% -5%,  rgba(223,122,80,.09) 0%, transparent 60%),
+        radial-gradient(ellipse 500px 700px at 108% 25%, rgba(120,196,160,.05) 0%, transparent 55%),
+        radial-gradient(ellipse 600px 350px at 55% 110%, rgba(201,160,72,.04) 0%, transparent 50%);
+      background-attachment: fixed;
     }
 
-    .page { max-width: 700px; margin: 0 auto; }
+    .page { max-width: 800px; margin: 0 auto; }
 
-    /* Header */
+    /* ── TOAST ─────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      top: 20px; left: 50%; transform: translateX(-50%);
+      background: var(--sage);
+      color: #0e1a14;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 100px;
+      box-shadow: 0 4px 24px rgba(120,196,160,.3);
+      z-index: 999;
+      animation: toastIn .3s cubic-bezier(.16,1,.3,1);
+    }
+    .toast.hidden { display: none; }
+    @keyframes toastIn {
+      from { opacity:0; transform: translateX(-50%) translateY(-10px); }
+      to   { opacity:1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* ── HEADER ────────────────────────────────────────── */
     header {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
       margin-bottom: 40px;
+      gap: 24px;
     }
+
+    .brand { display: flex; flex-direction: column; gap: 6px; }
 
     .logo {
       font-family: 'Syne', sans-serif;
       font-weight: 800;
-      font-size: 48px;
+      font-size: 52px;
       letter-spacing: -2px;
       line-height: 1;
       color: var(--text);
+      position: relative;
+      display: inline-block;
     }
 
-    .logo span { color: var(--accent); }
-
-    .header-meta {
-      text-align: right;
+    .logo::after {
+      content: '';
+      display: block;
+      height: 3px;
+      width: 48px;
+      background: var(--terra);
+      border-radius: 2px;
+      margin-top: 8px;
+      box-shadow: 0 0 12px var(--terra-glow);
     }
 
-    .task-count {
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 4px;
+    .tagline {
+      font-size: 13px;
+      color: var(--text-3);
+      letter-spacing: .01em;
+      margin-top: 6px;
+    }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .task-count-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-3);
+      letter-spacing: .01em;
+    }
+
+    .task-count-chip strong {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--terra);
+      letter-spacing: -1px;
     }
 
     .new-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--accent);
-      color: var(--bg);
+      background: var(--terra);
+      color: #1a0e06;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: .01em;
+      padding: 11px 22px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all .2s cubic-bezier(.4,0,.2,1);
+      box-shadow: 0 2px 0 rgba(0,0,0,.3), 0 0 0 0 var(--terra-glow);
+    }
+
+    .new-btn:hover {
+      background: var(--terra-lt);
+      box-shadow: 0 2px 0 rgba(0,0,0,.3), 0 0 20px var(--terra-glow);
+      transform: translateY(-1px);
+    }
+
+    .new-btn:active { transform: translateY(0); box-shadow: 0 1px 0 rgba(0,0,0,.3); }
+
+    .new-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+
+    /* ── STATS ─────────────────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .2s, background .2s;
+    }
+
+    .stat:hover { background: var(--card-hover); border-color: var(--border-mid); }
+
+    .stat::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--stripe, var(--terra));
+      opacity: .7;
+    }
+
+    .stat-icon {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--icon-bg, var(--terra-dim));
+      margin-bottom: 2px;
+    }
+
+    .stat-icon svg { width: 14px; height: 14px; stroke: var(--stripe, var(--terra)); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .stat-value {
       font-family: 'Syne', sans-serif;
       font-weight: 700;
-      font-size: 12px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      padding: 10px 18px;
-      text-decoration: none;
-      transition: opacity 0.15s, transform 0.1s;
+      font-size: 28px;
+      letter-spacing: -1px;
+      color: var(--text);
+      line-height: 1;
     }
 
-    .new-btn:hover { opacity: 0.85; }
-    .new-btn:active { transform: scale(0.97); }
-
-    .new-btn svg {
-      width: 13px; height: 13px;
-      stroke: currentColor; fill: none;
-      stroke-width: 2.5; stroke-linecap: round;
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: .01em;
     }
 
-    /* Divider */
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin-bottom: 32px;
-    }
-
-    /* Filter bar */
-    .filter-bar {
+    /* ── SECTION HEADER ────────────────────────────────── */
+    .section-header {
       display: flex;
-      gap: 8px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
     }
 
-    .filter-tag {
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 5px 12px;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.15s;
-      background: none;
+    .section-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+      letter-spacing: -.3px;
+    }
+
+    .count-pill {
+      background: var(--terra-dim);
+      color: var(--terra);
+      border: 1px solid rgba(223,122,80,.2);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 9px;
       font-family: 'JetBrains Mono', monospace;
     }
 
-    .filter-tag.active, .filter-tag:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+    .section-line { flex:1; height:1px; background: var(--border); }
 
-    /* Task list */
-    .tasks { display: flex; flex-direction: column; gap: 2px; }
+    /* ── TASK LIST ─────────────────────────────────────── */
+    .task-list { display: flex; flex-direction: column; gap: 6px; list-style: none; }
 
-    .task-row {
+    .task-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 18px 16px 22px;
       display: grid;
-      grid-template-columns: 1fr auto auto auto;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
-      background: var(--surface);
-      border-left: 3px solid transparent;
-      transition: border-color 0.15s, background 0.15s;
-      animation: slideIn 0.25s ease both;
+      grid-template-rows: auto auto;
+      gap: 10px;
+      position: relative;
+      transition: all .2s cubic-bezier(.4,0,.2,1);
+      animation: cardIn .35s cubic-bezier(.16,1,.3,1) both;
     }
 
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-8px); }
-      to { opacity: 1; transform: translateX(0); }
+    @keyframes cardIn {
+      from { opacity:0; transform: translateY(6px); }
+      to   { opacity:1; transform: translateY(0); }
     }
 
-    .task-row:hover { background: #202022; }
-    .task-row.high { border-left-color: var(--red); }
-    .task-row.medium { border-left-color: var(--amber); }
-    .task-row.low { border-left-color: var(--low); }
+    .task-card:hover { background: var(--card-hover); border-color: var(--border-mid); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,.25); }
 
-    .task-info { min-width: 0; }
+    /* priority stripe */
+    .task-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 10px; bottom: 10px;
+      width: 3px;
+      border-radius: 0 2px 2px 0;
+    }
+
+    .task-card.high::before   { background: var(--rose); }
+    .task-card.medium::before { background: var(--gold); }
+    .task-card.low::before    { background: var(--sky); }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-width: 0; }
 
     .task-name {
       font-family: 'Syne', sans-serif;
       font-weight: 600;
-      font-size: 15px;
+      font-size: 16px;
       color: var(--text);
+      letter-spacing: -.2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: 4px;
-    }
-
-    .task-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
     }
 
     .category-tag {
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .priority-badge {
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 2px 7px;
+      font-size: 11px;
       font-weight: 500;
-    }
-
-    .priority-badge.high { background: rgba(255,92,92,0.15); color: var(--red); }
-    .priority-badge.medium { background: rgba(255,184,77,0.15); color: var(--amber); }
-    .priority-badge.low { background: rgba(77,159,255,0.15); color: var(--low); }
-
-    .status-badge {
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      border: 1px solid var(--border);
-      color: var(--muted);
+      color: var(--text-3);
+      background: var(--border);
+      border: 1px solid var(--border-mid);
+      border-radius: 20px;
+      padding: 2px 9px;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
-    .status-badge.done {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: var(--accent-dim);
-    }
-
-    .task-actions { display: flex; align-items: center; gap: 6px; }
+    .card-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
     .edit-link {
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-3);
       text-decoration: none;
-      padding: 5px 10px;
-      border: 1px solid var(--border);
-      transition: all 0.15s;
-      white-space: nowrap;
+      padding: 5px 12px;
+      border: 1px solid var(--border-mid);
+      border-radius: 6px;
+      transition: all .15s;
     }
 
-    .edit-link:hover { color: var(--text); border-color: var(--muted); }
+    .edit-link:hover { color: var(--terra); border-color: var(--terra); background: var(--terra-dim); }
 
     .del-form { margin: 0; }
 
     .del-btn {
       background: none;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-mid);
+      border-radius: 6px;
       cursor: pointer;
       padding: 5px 8px;
-      color: var(--muted);
-      transition: all 0.15s;
-      display: flex; align-items: center;
+      color: var(--text-3);
+      display: flex;
+      align-items: center;
+      transition: all .15s;
     }
 
-    .del-btn:hover { color: var(--red); border-color: var(--red); }
+    .del-btn:hover { color: var(--rose); border-color: var(--rose); background: var(--rose-dim); }
+    .del-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-    .del-btn svg {
-      width: 12px; height: 12px;
-      stroke: currentColor; fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    /* card bottom row */
+    .card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    /* Empty state */
-    .empty {
-      padding: 64px 0;
-      text-align: center;
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
     }
 
-    .empty-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-      opacity: 0.3;
-    }
-
-    .empty p {
-      font-family: 'Syne', sans-serif;
-      font-size: 18px;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .empty span {
+    .priority-dot {
+      display: flex;
+      align-items: center;
+      gap: 5px;
       font-size: 11px;
-      color: var(--border);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .priority-dot::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .task-card.high   .priority-dot { color: var(--rose); }
+    .task-card.high   .priority-dot::before { background: var(--rose); box-shadow: 0 0 6px var(--rose); }
+    .task-card.medium .priority-dot { color: var(--gold); }
+    .task-card.medium .priority-dot::before { background: var(--gold); box-shadow: 0 0 6px var(--gold); }
+    .task-card.low    .priority-dot { color: var(--sky); }
+    .task-card.low    .priority-dot::before { background: var(--sky); box-shadow: 0 0 6px var(--sky); }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-3);
+    }
+
+    .meta-item svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .meta-item.reminder { color: var(--terra-lt); opacity: .8; }
+    .meta-item.reminder.sent { opacity: .35; text-decoration: line-through; }
+
+    .card-right { display: flex; align-items: center; gap: 8px; }
+
+    .status-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-mid);
+      color: var(--text-3);
+      background: transparent;
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+
+    .status-badge.done     { border-color: var(--sage); color: var(--sage); background: var(--sage-dim); }
+    .status-badge.progress { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+    /* ── EMPTY STATE ───────────────────────────────────── */
+    .empty {
+      padding: 80px 24px;
+      text-align: center;
+      background: var(--card);
+      border: 1px dashed var(--border-mid);
+      border-radius: 12px;
+    }
+
+    .empty-ring {
+      width: 72px; height: 72px;
+      border: 2px dashed var(--border-strong);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      color: var(--text-4);
+    }
+
+    .empty-ring svg { width: 32px; height: 32px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .empty h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: -.3px;
+    }
+
+    .empty p { font-size: 14px; color: var(--text-3); margin-bottom: 28px; }
+
+    /* ── RESPONSIVE ────────────────────────────────────── */
+    @media (max-width: 660px) {
+      body { padding: 32px 16px 64px; }
+      .logo { font-size: 40px; }
+      header { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .header-right { align-items: flex-start; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .task-card { padding-left: 18px; }
+      .card-top { flex-wrap: wrap; }
     }
   </style>
 </head>
 <body>
+  <div id="toast" class="toast hidden"></div>
+
   <div class="page">
     <header>
-      <div class="logo">Trac<span>kr</span></div>
-      <div class="header-meta">
-        <div class="task-count">{{ todos|length }} task{% if todos|length != 1 %}s{% endif %}</div>
+      <div class="brand">
+        <div class="logo">Trackr</div>
+        <div class="tagline">Stay on track. Always.</div>
+      </div>
+      <div class="header-right">
+        <div class="task-count-chip">
+          <strong>{{ todos|length }}</strong>
+          task{% if todos|length != 1 %}s{% endif %} total
+        </div>
         <a href="/create" class="new-btn">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           New task
@@ -275,38 +489,100 @@
       </div>
     </header>
 
-    <div class="divider"></div>
-
     {% if todos %}
-      <ul class="tasks" style="list-style:none">
-        {% for todo in todos %}
-        <li class="task-row {{ todo.priority | lower }}" style="animation-delay:{{ loop.index0 * 0.04 }}s">
-          <div class="task-info">
-            <div class="task-name">{{ todo.task_name }}</div>
-            <div class="task-meta">
-              <span class="category-tag">{{ todo.category }}</span>
-              <span class="priority-badge {{ todo.priority | lower }}">{{ todo.priority }}</span>
-            </div>
-          </div>
-          <span class="status-badge {% if todo.status == 'Completed' %}done{% endif %}">
-            {{ todo.status }}
-          </span>
-          <a href="/edit/{{ todo.id }}" class="edit-link">Edit</a>
-          <form class="del-form" action="/delete/{{ todo.id }}" method="POST">
-            <button class="del-btn" type="submit" title="Delete">
-              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-            </button>
-          </form>
-        </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <div class="empty">
-        <div class="empty-icon">◻</div>
-        <p>No tasks yet.</p>
-        <span>Click "New task" to get started</span>
+    <div class="stats">
+      <div class="stat" style="--stripe:var(--terra);--icon-bg:var(--terra-dim)">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="stat-value">{{ todos|length }}</div>
+        <div class="stat-label">Total tasks</div>
       </div>
+      <div class="stat" style="--stripe:var(--sage);--icon-bg:var(--sage-dim)">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="stat-value">{{ todos|selectattr('status','equalto','Completed')|list|length }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat" style="--stripe:var(--gold);--icon-bg:var(--gold-dim)">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="stat-value">{{ todos|selectattr('status','equalto','In Progress')|list|length }}</div>
+        <div class="stat-label">In progress</div>
+      </div>
+      <div class="stat" style="--stripe:var(--rose);--icon-bg:var(--rose-dim)">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="stat-value">{{ todos|selectattr('priority','equalto','High')|list|length }}</div>
+        <div class="stat-label">High priority</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>Tasks</h2>
+      <span class="count-pill">{{ todos|length }}</span>
+      <span class="section-line"></span>
+    </div>
+
+    <ul class="task-list">
+      {% for todo in todos %}
+      <li class="task-card {{ todo.priority|lower }}" style="animation-delay:{{ loop.index0 * 0.04 }}s">
+        <div class="card-top">
+          <div class="card-title-row">
+            <span class="task-name">{{ todo.task_name }}</span>
+            <span class="category-tag">{{ todo.category }}</span>
+          </div>
+          <div class="card-actions">
+            <a href="/edit/{{ todo.id }}" class="edit-link">Edit</a>
+            <form class="del-form" action="/delete/{{ todo.id }}" method="POST">
+              <button class="del-btn" type="submit" title="Delete task">
+                <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+        <div class="card-bottom">
+          <div class="card-meta">
+            <span class="priority-dot">{{ todo.priority }}</span>
+            <span class="meta-item">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              {{ todo.deadline.strftime('%d %b, %H:%M') }}
+            </span>
+            <span class="meta-item reminder {% if todo.message_delivered %}sent{% endif %}">
+              <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              {{ todo.reminder_time.strftime('%d %b, %H:%M') }}{% if todo.message_delivered %} ✓{% endif %}
+            </span>
+          </div>
+          <div class="card-right">
+            <span class="status-badge {% if todo.status == 'Completed' %}done{% elif todo.status == 'In Progress' %}progress{% endif %}">
+              {{ todo.status }}
+            </span>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+
+    {% else %}
+    <div class="empty">
+      <div class="empty-ring">
+        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <h3>Nothing here yet</h3>
+      <p>Create your first task or break a big goal down into steps.</p>
+      <a href="/create" class="new-btn" style="display:inline-flex;margin:0 auto">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Create first task
+      </a>
+    </div>
     {% endif %}
   </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const created = params.get('created');
+    if (created && parseInt(created) > 0) {
+      const toast = document.getElementById('toast');
+      toast.textContent = `${created} task${created > 1 ? 's' : ''} added to your tracker`;
+      toast.classList.remove('hidden');
+      window.history.replaceState({}, '', '/');
+      setTimeout(() => toast.classList.add('hidden'), 3500);
+    }
+  </script>
 </body>
 </html>

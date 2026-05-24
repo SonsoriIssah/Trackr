@@ -4,206 +4,846 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Task — Trackr</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0e0e0f;
-      --surface: #1a1a1c;
-      --border: #2a2a2e;
-      --text: #f0ede8;
-      --muted: #6b6870;
-      --accent: #c8f060;
-      --accent-dim: rgba(200,240,96,0.12);
+      --bg:           #0e0c08;
+      --bg-warm:      #121008;
+      --card:         #1a1609;
+      --card-hover:   #201c0e;
+      --border:       #2a2415;
+      --border-mid:   #362e1c;
+      --border-strong:#473e28;
+
+      --text:   #f0e8d5;
+      --text-2: #b8a98a;
+      --text-3: #7d7060;
+      --text-4: #4a4232;
+
+      --terra:      #df7a50;
+      --terra-lt:   #e8977a;
+      --terra-dim:  rgba(223,122,80,.13);
+      --terra-glow: rgba(223,122,80,.22);
+
+      --sage:     #78c4a0;
+      --sage-dim: rgba(120,196,160,.12);
+
+      --gold:     #c9a048;
+      --gold-dim: rgba(201,160,72,.12);
+
+      --rose:     #cc6b6b;
+      --rose-dim: rgba(204,107,107,.12);
     }
 
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(10px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    @keyframes slideDown {
+      from { opacity:0; transform: translateY(-8px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     body {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 48px 24px 80px;
+      padding: 52px 24px 96px;
+      background-image:
+        radial-gradient(ellipse 700px 500px at -8% -5%,  rgba(223,122,80,.09) 0%, transparent 60%),
+        radial-gradient(ellipse 500px 700px at 108% 25%, rgba(120,196,160,.05) 0%, transparent 55%);
+      background-attachment: fixed;
     }
 
-    .page { max-width: 560px; margin: 0 auto; }
+    .page { max-width: 620px; margin: 0 auto; animation: fadeUp .4s ease both; }
 
+    /* ── TOP BAR ───────────────────────────────────────── */
     .top-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 48px;
+      margin-bottom: 40px;
       padding-bottom: 20px;
       border-bottom: 1px solid var(--border);
     }
 
     .back-link {
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-3);
       text-decoration: none;
+      transition: color .15s;
+    }
+
+    .back-link:hover { color: var(--text-2); }
+    .back-link svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
+    .back-link:hover svg { transform: translateX(-3px); }
+
+    .crumb {
+      font-size: 12px;
+      color: var(--text-4);
+      letter-spacing: .01em;
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: color 0.15s;
     }
 
-    .back-link:hover { color: var(--text); }
-
-    .back-link svg {
-      width: 12px; height: 12px;
-      stroke: currentColor; fill: none;
-      stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+    .crumb-dot {
+      width: 6px; height: 6px;
+      background: var(--terra);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--terra-glow);
+      animation: pulse 2s ease-in-out infinite;
     }
 
-    .page-label {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 13px;
-      letter-spacing: 0.05em;
+    @keyframes pulse {
+      0%,100% { opacity:1; transform: scale(1); }
+      50%      { opacity:.5; transform: scale(1.3); }
+    }
+
+    /* ── PAGE HEADER ───────────────────────────────────── */
+    .page-header { margin-bottom: 32px; }
+
+    .page-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .12em;
       text-transform: uppercase;
-      color: var(--accent);
+      color: var(--terra);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .field { margin-bottom: 32px; }
+    .page-eyebrow::before { content:''; width: 20px; height: 1px; background: var(--terra); }
+
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 34px;
+      letter-spacing: -1.5px;
+      color: var(--text);
+      line-height: 1.1;
+    }
+
+    .page-title span { color: var(--terra); }
+
+    .page-sub { font-size: 13px; color: var(--text-3); margin-top: 8px; }
+
+    /* ── MODE TOGGLE ───────────────────────────────────── */
+    .mode-toggle {
+      display: flex;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
+      margin-bottom: 28px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      border-radius: 7px;
+      color: var(--text-3);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: all .18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .mode-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .mode-btn.active { background: var(--card-hover); color: var(--terra); border: 1px solid var(--border-mid); box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+    .mode-btn:hover:not(.active) { color: var(--text-2); }
+
+    /* ── FORM CARD ─────────────────────────────────────── */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+    }
+
+    /* ── FIELDS ────────────────────────────────────────── */
+    .field { margin-bottom: 24px; }
+    .field:last-child { margin-bottom: 0; }
 
     .field-label {
-      display: block;
-      font-size: 10px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-2);
+      margin-bottom: 8px;
+      letter-spacing: .01em;
     }
 
-    .field input[type="text"] {
+    .req { color: var(--terra); font-size: 10px; }
+
+    .field input[type="text"],
+    .field input[type="email"],
+    .field input[type="datetime-local"] {
       width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-bottom: 2px solid var(--accent);
+      background: var(--bg-warm);
+      border: 1px solid var(--border-mid);
+      border-radius: 8px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color .18s, box-shadow .18s;
+      color-scheme: dark;
+    }
+
+    .field input[type="text"]#goal,
+    .field input[type="text"]#task_name {
       font-family: 'Syne', sans-serif;
       font-weight: 600;
-      font-size: 22px;
-      color: var(--text);
-      padding: 14px 16px;
-      outline: none;
-      transition: border-color 0.15s;
+      font-size: 20px;
+      padding: 15px 16px;
     }
 
-    .field input[type="text"]::placeholder { color: var(--muted); font-weight: 400; }
-    .field input[type="text"]:focus { border-bottom-color: var(--accent); background: #1e1e20; }
+    .field input::placeholder { color: var(--text-4); font-weight: 400; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .field input:focus { border-color: var(--terra); box-shadow: 0 0 0 3px var(--terra-dim); }
+    .field input.invalid { border-color: var(--rose) !important; box-shadow: 0 0 0 3px var(--rose-dim) !important; }
 
     .field-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 32px;
+      gap: 14px;
+      margin-bottom: 24px;
     }
 
     .field-row .field { margin-bottom: 0; }
 
     select {
       width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
+      background: var(--bg-warm);
+      border: 1px solid var(--border-mid);
+      border-radius: 8px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
       color: var(--text);
       padding: 12px 14px;
       outline: none;
       cursor: pointer;
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6870' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237d7060' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 14px center;
-      transition: border-color 0.15s;
+      transition: border-color .18s, box-shadow .18s;
+      font-weight: 500;
     }
 
-    select:focus { border-color: var(--accent); }
-    select option { background: var(--surface); }
+    select:focus { border-color: var(--terra); box-shadow: 0 0 0 3px var(--terra-dim); }
+    select.invalid { border-color: var(--rose) !important; box-shadow: 0 0 0 3px var(--rose-dim) !important; }
+    select option { background: #1a1609; }
 
+    .field-error {
+      font-size: 11px;
+      color: var(--rose);
+      margin-top: 5px;
+      display: none;
+    }
+
+    /* ── SECTION DIVIDER ───────────────────────────────── */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 4px 0 24px;
+    }
+
+    .divider-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--terra);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .divider-label svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+    .divider-line { flex:1; height:1px; background: var(--border); }
+
+    /* ── HINT ──────────────────────────────────────────── */
+    .form-hint {
+      margin-top: 20px;
+      padding: 12px 16px;
+      background: var(--terra-dim);
+      border-left: 2px solid var(--terra);
+      border-radius: 0 6px 6px 0;
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.6;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .form-hint svg { width: 13px; height: 13px; stroke: var(--terra); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin-top: 2px; }
+    .form-hint strong { color: var(--text-2); font-weight: 600; }
+
+    /* ── ACTIONS ───────────────────────────────────────── */
     .actions {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding-top: 8px;
+      gap: 14px;
+      padding-top: 28px;
+      margin-top: 28px;
+      border-top: 1px solid var(--border);
     }
 
     .save-btn {
-      background: var(--accent);
-      color: var(--bg);
-      font-family: 'Syne', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--terra);
+      color: #1a0e06;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 700;
-      font-size: 13px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      padding: 14px 32px;
+      font-size: 14px;
+      padding: 13px 28px;
       border: none;
+      border-radius: 8px;
       cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
+      transition: all .2s cubic-bezier(.4,0,.2,1);
+      box-shadow: 0 2px 0 rgba(0,0,0,.3);
     }
 
-    .save-btn:hover { opacity: 0.85; }
-    .save-btn:active { transform: scale(0.97); }
+    .save-btn:hover { background: var(--terra-lt); transform: translateY(-1px); box-shadow: 0 4px 16px var(--terra-glow); }
+    .save-btn:active { transform: translateY(0); box-shadow: 0 1px 0 rgba(0,0,0,.3); }
+    .save-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
     .cancel-link {
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-3);
       text-decoration: none;
-      transition: color 0.15s;
+      padding: 10px 14px;
+      border-radius: 8px;
+      transition: all .15s;
     }
 
-    .cancel-link:hover { color: var(--text); }
+    .cancel-link:hover { color: var(--text-2); background: var(--card-hover); }
+
+    /* ── SUGGEST BUTTON ────────────────────────────────── */
+    .suggest-wrap { margin-top: 12px; }
+
+    .suggest-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: none;
+      border: 1px dashed var(--border-strong);
+      border-radius: 8px;
+      color: var(--text-3);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 12px;
+      cursor: pointer;
+      transition: all .18s;
+    }
+
+    .suggest-btn:hover:not(:disabled) {
+      border-color: var(--terra);
+      color: var(--terra);
+      background: var(--terra-dim);
+    }
+
+    .suggest-btn:disabled { opacity: .45; cursor: not-allowed; }
+    .suggest-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ── SUBTASK PANEL ─────────────────────────────────── */
+    .subtask-panel {
+      margin-top: 20px;
+      background: var(--bg-warm);
+      border: 1px solid var(--border-mid);
+      border-radius: 10px;
+      overflow: hidden;
+      animation: slideDown .25s ease both;
+    }
+
+    .subtask-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .subtask-panel-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--terra);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .subtask-panel-label svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+    .subtask-count-pill {
+      background: var(--terra-dim);
+      color: var(--terra);
+      border: 1px solid rgba(223,122,80,.2);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .subtask-list { list-style: none; }
+
+    .subtask-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+
+    .subtask-item:last-child { border-bottom: none; }
+    .subtask-item:hover { background: var(--card); }
+
+    .subtask-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-4);
+      flex-shrink: 0;
+      width: 18px;
+    }
+
+    .subtask-check {
+      width: 18px; height: 18px;
+      flex-shrink: 0;
+      border-radius: 5px;
+      background: var(--sage-dim);
+      border: 1px solid rgba(120,196,160,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .subtask-check svg { width: 10px; height: 10px; stroke: var(--sage); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .subtask-text {
+      flex: 1;
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.5;
+    }
+
+    /* ── ACCEPT ALL ────────────────────────────────────── */
+    .accept-all-wrap {
+      padding: 16px;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+    }
+
+    .accept-all-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      background: var(--terra);
+      color: #1a0e06;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all .2s cubic-bezier(.4,0,.2,1);
+      box-shadow: 0 2px 0 rgba(0,0,0,.3);
+    }
+
+    .accept-all-btn:hover:not(:disabled) { background: var(--terra-lt); transform: translateY(-1px); box-shadow: 0 4px 20px var(--terra-glow); }
+    .accept-all-btn:active { transform: translateY(0); }
+    .accept-all-btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+    .accept-all-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .accept-hint { margin-top: 8px; font-size: 11px; color: var(--text-4); text-align: center; }
+
+    /* ── GOAL SETTINGS ─────────────────────────────────── */
+    .goal-settings { margin-top: 28px; }
+
+    /* ── HIDDEN ────────────────────────────────────────── */
+    .hidden { display: none !important; }
+
+    /* ── RESPONSIVE ────────────────────────────────────── */
+    @media (max-width: 600px) {
+      body { padding: 32px 16px 64px; }
+      .page-title { font-size: 26px; }
+      .form-card { padding: 20px; }
+      .field-row { grid-template-columns: 1fr; }
+      .top-bar { flex-wrap: wrap; gap: 12px; }
+    }
   </style>
 </head>
 <body>
   <div class="page">
+
     <div class="top-bar">
       <a href="/" class="back-link">
         <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
         All tasks
       </a>
-      <span class="page-label">New task</span>
+      <div class="crumb">
+        <span class="crumb-dot"></span>
+        New entry
+      </div>
     </div>
 
-    <form action="/create" method="POST">
-      <div class="field">
-        <label class="field-label" for="task_name">Task name</label>
-        <input type="text" id="task_name" name="task_name" placeholder="What needs to be done?" required autofocus>
-      </div>
+    <div class="page-header">
+      <div class="page-eyebrow">New entry</div>
+      <h1 class="page-title">What's <span>next</span>?</h1>
+      <p class="page-sub">Add a task, or drop a big goal and let Trackr break it into steps.</p>
+    </div>
 
-      <div class="field-row">
+    <!-- Mode toggle -->
+    <div class="mode-toggle">
+      <button type="button" class="mode-btn active" id="btn-single" onclick="setMode('single')">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Single task
+      </button>
+      <button type="button" class="mode-btn" id="btn-goal" onclick="setMode('goal')">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Break down a goal
+      </button>
+    </div>
+
+    <!-- ── SINGLE TASK FORM ───────────────────────────── -->
+    <form id="form-single" action="/create" method="POST">
+      <div class="form-card">
         <div class="field">
-          <label class="field-label" for="category">Category</label>
-          <select id="category" name="category" required>
-            <option value="" disabled selected>Select...</option>
-            <option value="School">School</option>
-            <option value="Personal">Personal</option>
-            <option value="Work">Work</option>
-            <option value="Project">Project</option>
-            <option value="Other">Other</option>
-          </select>
+          <label class="field-label" for="task_name">Task name <span class="req">●</span></label>
+          <input type="text" id="task_name" name="task_name" placeholder="What needs to be done?" required autofocus>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="category">Category</label>
+            <select id="category" name="category" required>
+              <option value="" disabled selected>Select…</option>
+              <option value="School">School</option>
+              <option value="Personal">Personal</option>
+              <option value="Work">Work</option>
+              <option value="Project">Project</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="priority">Priority</label>
+            <select id="priority" name="priority" required>
+              <option value="" disabled selected>Select…</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-divider">
+          <span class="divider-label">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Schedule
+          </span>
+          <span class="divider-line"></span>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="deadline">Deadline <span class="req">●</span></label>
+            <input type="datetime-local" id="deadline" name="deadline" required>
+          </div>
+          <div class="field">
+            <label class="field-label" for="reminder_time">Remind me at <span class="req">●</span></label>
+            <input type="datetime-local" id="reminder_time" name="reminder_time" required>
+          </div>
         </div>
 
         <div class="field">
-          <label class="field-label" for="priority">Priority</label>
-          <select id="priority" name="priority" required>
-            <option value="" disabled selected>Select...</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
+          <label class="field-label" for="email">Reminder email <span class="req">●</span></label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+
+        <div class="form-hint">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div><strong>Tip:</strong> Set your reminder a bit before the deadline so you have time to wrap up.</div>
         </div>
       </div>
 
       <div class="actions">
-        <button type="submit" class="save-btn">Add task</button>
+        <button type="submit" class="save-btn">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add task
+        </button>
         <a href="/" class="cancel-link">Cancel</a>
       </div>
     </form>
-  </div>
+
+    <!-- ── GOAL BREAKDOWN FORM ────────────────────────── -->
+    <div id="form-goal" class="hidden">
+      <div class="form-card">
+
+        <div class="field">
+          <label class="field-label" for="goal">Your goal <span class="req">●</span></label>
+          <input type="text" id="goal" placeholder="e.g. Build my portfolio website" autocomplete="off">
+        </div>
+
+        <div class="suggest-wrap">
+          <button type="button" id="suggest-btn" class="suggest-btn" onclick="fetchBreakdown()">
+            <svg id="suggest-icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            <span id="suggest-label">Generate subtasks</span>
+          </button>
+        </div>
+
+        <!-- Subtask panel -->
+        <div id="subtask-panel" class="subtask-panel hidden">
+          <div class="subtask-panel-head">
+            <span class="subtask-panel-label">
+              <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Proposed subtasks
+            </span>
+            <span id="subtask-count-pill" class="subtask-count-pill"></span>
+          </div>
+          <ul id="subtask-list" class="subtask-list"></ul>
+          <div class="accept-all-wrap">
+            <button type="button" id="accept-btn" class="accept-all-btn" onclick="acceptAll()">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              <span id="accept-label">Accept all &amp; save to timeline</span>
+            </button>
+            <p class="accept-hint">All subtasks are added using the settings below.</p>
+          </div>
+        </div>
+
+        <!-- Shared settings -->
+        <div id="goal-settings" class="goal-settings hidden">
+          <div class="section-divider">
+            <span class="divider-label">
+              <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Settings for all subtasks
+            </span>
+            <span class="divider-line"></span>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label" for="g-category">Category <span class="req">●</span></label>
+              <select id="g-category">
+                <option value="" disabled selected>Select…</option>
+                <option value="School">School</option>
+                <option value="Personal">Personal</option>
+                <option value="Work">Work</option>
+                <option value="Project">Project</option>
+                <option value="Other">Other</option>
+              </select>
+              <div class="field-error" id="err-category">Please select a category.</div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="g-priority">Priority <span class="req">●</span></label>
+              <select id="g-priority">
+                <option value="" disabled selected>Select…</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+              <div class="field-error" id="err-priority">Please select a priority.</div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label" for="g-deadline">Deadline <span class="req">●</span></label>
+              <input type="datetime-local" id="g-deadline">
+              <div class="field-error" id="err-deadline">Please set a deadline.</div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="g-reminder">Remind me at <span class="req">●</span></label>
+              <input type="datetime-local" id="g-reminder">
+              <div class="field-error" id="err-reminder">Please set a reminder time.</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="g-email">Reminder email <span class="req">●</span></label>
+            <input type="email" id="g-email" placeholder="you@example.com">
+            <div class="field-error" id="err-email">Please enter a valid email.</div>
+          </div>
+
+          <div class="form-hint">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <div><strong>Tip:</strong> These settings apply to every subtask — you can edit individual ones later.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a href="/" class="cancel-link">Cancel</a>
+      </div>
+    </div>
+
+  </div><!-- .page -->
+
+  <script>
+    // ── Mode ────────────────────────────────────────────
+    function setMode(mode) {
+      const single = mode === 'single';
+      document.getElementById('form-single').classList.toggle('hidden', !single);
+      document.getElementById('form-goal').classList.toggle('hidden', single);
+      document.getElementById('btn-single').classList.toggle('active', single);
+      document.getElementById('btn-goal').classList.toggle('active', !single);
+      setTimeout(() => {
+        document.getElementById(single ? 'task_name' : 'goal').focus();
+      }, 50);
+    }
+
+    // ── Breakdown fetch ─────────────────────────────────
+    let currentSubtasks = [];
+
+    async function fetchBreakdown() {
+      const goal = document.getElementById('goal').value.trim();
+      if (!goal) {
+        const inp = document.getElementById('goal');
+        inp.classList.add('invalid');
+        inp.focus();
+        setTimeout(() => inp.classList.remove('invalid'), 1200);
+        return;
+      }
+
+      const btn = document.getElementById('suggest-btn');
+      const icon = document.getElementById('suggest-icon');
+      const lbl = document.getElementById('suggest-label');
+      btn.disabled = true;
+      icon.innerHTML = '<path d="M21 12a9 9 0 1 1-6.219-8.56" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" style="transform-origin:center;animation:spin .9s linear infinite"/>';
+      lbl.textContent = 'Thinking…';
+
+      try {
+        const res = await fetch('/breakdown', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ goal })
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        currentSubtasks = data.subtasks;
+
+        const list = document.getElementById('subtask-list');
+        list.innerHTML = '';
+        data.subtasks.forEach((task, i) => {
+          const li = document.createElement('li');
+          li.className = 'subtask-item';
+          li.innerHTML = `
+            <span class="subtask-num">${String(i+1).padStart(2,'0')}</span>
+            <span class="subtask-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+            <span class="subtask-text">${task}</span>`;
+          list.appendChild(li);
+        });
+
+        document.getElementById('subtask-count-pill').textContent =
+          `${data.subtasks.length} task${data.subtasks.length !== 1 ? 's' : ''}`;
+        document.getElementById('subtask-panel').classList.remove('hidden');
+        document.getElementById('goal-settings').classList.remove('hidden');
+      } catch {
+        alert('Could not generate subtasks — please try again.');
+      } finally {
+        btn.disabled = false;
+        icon.innerHTML = '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>';
+        lbl.textContent = 'Regenerate';
+      }
+    }
+
+    // ── Accept all ──────────────────────────────────────
+    async function acceptAll() {
+      if (!validateGoalForm()) return;
+
+      const btn = document.getElementById('accept-btn');
+      const lbl = document.getElementById('accept-label');
+      btn.disabled = true;
+      lbl.textContent = 'Saving…';
+
+      try {
+        const res = await fetch('/create-all', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subtasks: currentSubtasks,
+            category:      document.getElementById('g-category').value,
+            priority:      document.getElementById('g-priority').value,
+            deadline:      document.getElementById('g-deadline').value,
+            reminder_time: document.getElementById('g-reminder').value,
+            email:         document.getElementById('g-email').value
+          })
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        window.location.href = '/?created=' + data.created;
+      } catch {
+        btn.disabled = false;
+        lbl.textContent = 'Accept all & save to timeline';
+        alert('Something went wrong — please try again.');
+      }
+    }
+
+    function validateGoalForm() {
+      const checks = [
+        { el: document.getElementById('g-category'), err: 'err-category' },
+        { el: document.getElementById('g-priority'), err: 'err-priority' },
+        { el: document.getElementById('g-deadline'), err: 'err-deadline' },
+        { el: document.getElementById('g-reminder'), err: 'err-reminder' },
+        { el: document.getElementById('g-email'),    err: 'err-email' },
+      ];
+      let ok = true;
+      checks.forEach(({ el, err }) => {
+        const empty = !el.value.trim();
+        el.classList.toggle('invalid', empty);
+        document.getElementById(err).style.display = empty ? 'block' : 'none';
+        if (empty) ok = false;
+      });
+      if (!ok) document.getElementById('g-category').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return ok;
+    }
+
+    ['g-category','g-priority','g-deadline','g-reminder','g-email'].forEach(id => {
+      document.getElementById(id).addEventListener('change', function() {
+        this.classList.remove('invalid');
+        const key = id.replace('g-','');
+        const errEl = document.getElementById('err-' + key);
+        if (errEl) errEl.style.display = 'none';
+      });
+    });
+  </script>
 </body>
 </html>
